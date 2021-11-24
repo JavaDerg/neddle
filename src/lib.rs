@@ -1,28 +1,12 @@
+mod ctx;
 #[cfg(test)]
 mod tests;
 
-use fxhash::FxBuildHasher;
-use std::any::{Any, TypeId};
+pub use ctx::*;
 
 pub trait Injectable<R, Param> {
     fn ctx_call(&self, ctx: &Context) -> R;
     fn call_direct(&self, p: Param) -> R;
-}
-
-pub struct Context {
-    map: dashmap::DashMap<TypeId, Box<dyn Any>, FxBuildHasher>,
-}
-
-pub trait FromCtx {
-    fn from(ctx: &Context) -> Self;
-}
-
-impl Context {
-    pub fn new() -> Self {
-        Self {
-            map: Default::default(),
-        }
-    }
 }
 
 impl<F, R> Injectable<R, ()> for F
@@ -35,13 +19,6 @@ where
 
     fn call_direct(&self, _: ()) -> R {
         self()
-    }
-}
-
-impl<T: FromCtx> FromCtx for Option<&T> {
-    fn from(ctx: &Context) -> Self {
-        // ctx.map.get(&TypeId::of::<T>())?.value().downcast_ref()
-        todo!()
     }
 }
 
@@ -78,6 +55,7 @@ macro_rules! gen_impls
         gen_impls!($(($($name),+) <- ($($type),+)),+);
     };
 
+    // TODO:
     [explode:
         ($($name_:ident),+) <- ($($type_:ident),+),
     ] => {
@@ -93,6 +71,7 @@ macro_rules! gen_impls
     };
 }
 
+// TODO: This needs some dire fixing
 gen_impls![
     (arg0) <- (Arg0),
     (arg0, arg1) <- (Arg0, Arg1),

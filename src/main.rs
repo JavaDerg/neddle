@@ -1,4 +1,4 @@
-use neddle::{Context, FromCtx, Injectable};
+use neddle::Injectable;
 
 fn main() {
     let ctx = Context::new();
